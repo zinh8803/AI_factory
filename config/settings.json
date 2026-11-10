@@ -1,0 +1,52 @@
+{
+    "ollama": {
+        "url": "http://localhost:11434",
+        "model": "qwen2.5:3b",
+        "timeout": 600,
+        "temperature": 0.7
+    },
+    "trends": {
+        "rss_urls": [
+            "https://trends.google.com/trending/rss?geo=VN"
+        ],
+        "max_items": 25
+    },
+    "tts": {
+        "command": "korvatts",
+        "voice": "khanh_vy",
+        "pause_between_scenes": 0.35
+    },
+    "video": {
+        "width": 1080,
+        "height": 1920,
+        "fps": 30,
+        "min_duration": 45,
+        "max_duration": 90,
+        "font_path": "",
+        "font_bold_path": "",
+        "background_music_volume": 0.08,
+        "channel_name": "AI Thực Chiến",
+        "theme_colors": [
+            ["#0f2027", "#2c5364"],
+            ["#1a1a2e", "#16213e"],
+            ["#141e30", "#243b55"],
+            ["#232526", "#414345"],
+            ["#0b132b", "#3a506b"]
+        ],
+        "accent_color": "#ffd166"
+    },
+    "images": {
+        "enabled": true,
+        "api_key": "",
+        "free_interval_seconds": 47,
+        "model": "",
+        "timeout": 180,
+        "retries": 3,
+        "style": "cinematic lighting, vibrant colors, highly detailed, modern tech aesthetic, vertical composition, no text, no letters, no watermark"
+    },
+    "affiliate": {
+        "disclosure": "Lưu ý: Một số link trong mô tả là link tiếp thị liên kết, mình có thể nhận hoa hồng nếu bạn đăng ký qua link (không phát sinh thêm chi phí cho bạn)."
+    },
+    "history_days_no_repeat": 60
+}
+

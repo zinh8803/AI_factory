@@ -1,0 +1,53 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+
+# Environment Variables
+.env
+.env.local
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Output generated media (giữ lại cấu trúc thư mục qua .gitkeep)
+output/audio/*
+!output/audio/.gitkeep
+output/images/*
+!output/images/.gitkeep
+output/pending/*
+!output/pending/.gitkeep
+output/scripts/*
+!output/scripts/.gitkeep
+output/videos/*
+!output/videos/.gitkeep
+
+# Temporary data and trends cache
+data/trends/*
+!data/trends/.gitkeep
+
+# Logs
+logs/*
+!logs/.gitkeep
+
+# Temporary media files at root or scratch
+scratch/
+*.tmp
+*.log
+hello.wav
+test_img.jpg
+

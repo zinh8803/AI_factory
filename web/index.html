@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Video Factory – Quản Lý & Sản Xuất Video Tự Động</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.25);
+      --primary: #3b82f6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --terminal-bg: #070a11;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.08) 0px, transparent 50%);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0 28px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 32px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+    }
+    .brand h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #fff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .brand p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+    .status-pill.busy {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--accent);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+    .dot.pulsing {
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 28px;
+      margin-bottom: 36px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    /* Generator Box */
+    .gen-box {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .topic-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 15px;
+      color: #fff;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .topic-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .btn-create {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #111;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 14px 26px;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px var(--accent-glow);
+      white-space: nowrap;
+    }
+    .btn-create:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(245, 158, 11, 0.4);
+    }
+    .btn-create:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Progress Area */
+    .progress-section {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 14px;
+      padding: 18px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 20px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .progress-step-text {
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .progress-pct {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+    .progress-bar-bg {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b, #10b981);
+      width: 0%;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 12px var(--accent);
+    }
+    .pipeline-steps {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+    .step-badge {
+      font-size: 11px;
+      text-align: center;
+      padding: 6px 4px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      transition: all 0.3s;
+    }
+    .step-badge.active {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    .step-badge.done {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--success);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    /* Console Terminal */
+    .terminal-container {
+      background: var(--terminal-bg);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+    .terminal-header {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .terminal-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .terminal-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .terminal-body {
+      height: 220px;
+      overflow-y: auto;
+      padding: 14px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .log-line {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+    .log-time { color: #64748b; }
+    .log-INFO { color: #e2e8f0; }
+    .log-WARNING { color: #f59e0b; }
+    .log-ERROR { color: #ef4444; font-weight: 600; }
+
+    /* Video Gallery */
+    .gallery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .gallery-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+    }
+    .video-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .video-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245, 158, 11, 0.4);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    }
+    .thumb-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9/16;
+      background: #000;
+      overflow: hidden;
+    }
+    .thumb-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s;
+    }
+    .video-card:hover .thumb-wrapper img {
+      transform: scale(1.04);
+    }
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .video-card:hover .play-overlay {
+      opacity: 1;
+    }
+    .play-btn {
+      width: 54px;
+      height: 54px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-size: 22px;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .duration-badge {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+    }
+    .status-tag {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .status-tag.ok {
+      background: rgba(16, 185, 129, 0.9);
+      color: #fff;
+    }
+    .status-tag.warn {
+      background: rgba(239, 68, 68, 0.9);
+      color: #fff;
+    }
+    .card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .video-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .video-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Modal Video Viewer */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background: #111827;
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      max-width: 1000px;
+      width: 100%;
+      max-height: 90vh;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+    .modal-player-col {
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-player-col video {
+      width: 100%;
+      max-height: 75vh;
+      border-radius: 14px;
+      outline: none;
+    }
+    .modal-details-col {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      max-height: 85vh;
+    }
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 14px;
+      padding-right: 36px;
+    }
+    .tabs-nav {
+      display: flex;
+      gap: 10px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .tab-btn.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .tab-content {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #d1d5db;
+      white-space: pre-wrap;
+      font-family: inherit;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--card-border);
+    }
+    .btn-action {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      border: 1px solid var(--card-border);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-action:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #fff;
+    }
+    .btn-action.primary {
+      background: var(--accent);
+      color: #111;
+      border: none;
+    }
+    .btn-action.primary:hover {
+      background: #d97706;
+    }
+
+    /* Responsive */
+    @media (max-width: 860px) {
+      .modal-content {
+        grid-template-columns: 1fr;
+        max-height: 95vh;
+      }
+      .modal-player-col {
+        max-height: 40vh;
+      }
+      .pipeline-steps {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .gen-box {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="brand-icon">🎬</div>
+        <div>
+          <h1>AI Video Factory</h1>
+          <p>Hệ thống sản xuất video AI tự động cho YouTube Shorts, TikTok & Reels</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <div id="statusPill" class="status-pill">
+          <span class="dot"></span>
+          <span id="statusText">Sẵn sàng</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-grid">
+      <!-- Generator Card -->
+      <div class="card">
+        <div class="card-title">
+          <span>⚡</span> Bảng Điều Khiển Tạo Video
+        </div>
+
+        <div class="gen-box">
+          <input type="text" id="topicInput" class="topic-input" 
+                 placeholder="Nhập chủ đề video (hoặc để trống để AI tự quét Google Trends hôm nay)...">
+          <button id="btnCreate" class="btn-create" onclick="triggerGenerate()">
+            <span>🚀</span> Tạo Video Ngay
+          </button>
+        </div>
+
+        <!-- Progress bar & steps -->
+        <div class="progress-section">
+          <div class="progress-header">
+            <span id="stepMessage" class="progress-step-text">Chưa có tác vụ nào đang chạy</span>
+            <span id="stepPct" class="progress-pct">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="progressBar" class="progress-bar-fill"></div>
+          </div>
+          <div class="pipeline-steps">
+            <div id="step-research" class="step-badge">1. Nghiên cứu</div>
+            <div id="step-script" class="step-badge">2. Kịch bản</div>
+            <div id="step-voice" class="step-badge">3. Giọng đọc</div>
+            <div id="step-render" class="step-badge">4. Dựng video AI</div>
+            <div id="step-quality" class="step-badge">5. Kiểm định</div>
+            <div id="step-done" class="step-badge">6. Hoàn tất</div>
+          </div>
+        </div>
+
+        <!-- Live Terminal Logs -->
+        <div class="terminal-container">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <div class="terminal-dot"></div>
+              <div class="terminal-dot"></div>
+              <div class="terminal-dot"></div>
+            </div>
+            <span>Nhật Ký Hệ Thống (Live Terminal)</span>
+            <button onclick="clearLogs()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:11px;">Xóa log</button>
+          </div>
+          <div id="terminalBody" class="terminal-body">
+            <div class="log-line">
+              <span class="log-time">[Hệ thống]</span>
+              <span class="log-INFO">Đã kết nối máy chủ AI Video Factory. Sẵn sàng tạo video.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Gallery Section -->
+    <div class="gallery-header">
+      <div class="gallery-title">
+        <span>🎞️</span> Kho Video Đã Tạo (<span id="videoCount">0</span>)
+      </div>
+      <button onclick="loadVideos()" class="btn-action" style="max-width: 140px;">
+        <span>🔄</span> Làm mới
+      </button>
+    </div>
+
+    <div id="videoGrid" class="video-grid">
+      <!-- Dynamic Video Cards will be inserted here -->
+    </div>
+  </div>
+
+  <!-- Video Detail Modal -->
+  <div id="videoModal" class="modal-overlay" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+
+      <!-- Video Player Column -->
+      <div class="modal-player-col">
+        <video id="modalVideo" controls preload="metadata"></video>
+      </div>
+
+      <!-- Video Info Column -->
+      <div class="modal-details-col">
+        <h3 id="modalTitle" class="modal-title">Tiêu đề video</h3>
+
+        <div class="tabs-nav">
+          <button class="tab-btn active" onclick="switchTab('tabDesc')">Mô tả & Hashtags</button>
+          <button class="tab-btn" onclick="switchTab('tabScript')">Kịch bản phân cảnh</button>
+          <button class="tab-btn" onclick="switchTab('tabReview')">Đánh giá chất lượng</button>
+        </div>
+
+        <div id="tabDesc" class="tab-content active"></div>
+        <div id="tabScript" class="tab-content"></div>
+        <div id="tabReview" class="tab-content"></div>
+
+        <div class="modal-actions">
+          <button class="btn-action" onclick="copyDescription()">
+            <span>📋</span> Sao chép mô tả
+          </button>
+          <button class="btn-action" onclick="openOnComputer()">
+            <span>📂</span> Mở trên máy
+          </button>
+          <a id="btnDownload" class="btn-action primary" download>
+            <span>⬇️</span> Tải MP4
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentVideoData = null;
+    let eventSource = null;
+
+    const stepOrder = ["research", "script", "voice", "render", "quality", "done"];
+
+    function updateStepPills(currentStep, progress) {
+      stepOrder.forEach((step, idx) => {
+        const el = document.getElementById(`step-${step}`);
+        if (!el) return;
+        el.className = "step-badge";
+        const currentIdx = stepOrder.indexOf(currentStep);
+
+        if (currentStep === "done") {
+          el.classList.add("done");
+        } else if (idx < currentIdx) {
+          el.classList.add("done");
+        } else if (idx === currentIdx) {
+          el.classList.add("active");
+        }
+      });
+    }
+
+    function appendLog(time, level, message) {
+      const body = document.getElementById("terminalBody");
+      const div = document.createElement("div");
+      div.className = "log-line";
+      div.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-${level}">${escapeHtml(message)}</span>`;
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function clearLogs() {
+      document.getElementById("terminalBody").innerHTML = "";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.innerText = text;
+      return div.innerHTML;
+    }
+
+    // Connect SSE for real-time logs and status
+    function initSSE() {
+      if (eventSource) eventSource.close();
+      eventSource = new EventSource("/api/logs/stream");
+
+      eventSource.onmessage = function(e) {
+        try {
+          const data = JSON.parse(e.data);
+          const status = data.status;
+
+          // Update Status Pill & Progress
+          const statusPill = document.getElementById("statusPill");
+          const statusText = document.getElementById("statusText");
+          const btnCreate = document.getElementById("btnCreate");
+          const stepMsg = document.getElementById("stepMessage");
+          const stepPct = document.getElementById("stepPct");
+          const pBar = document.getElementById("progressBar");
+
+          if (status.is_running) {
+            statusPill.className = "status-pill busy";
+            statusPill.querySelector(".dot").className = "dot pulsing";
+            statusText.innerText = `Đang xử lý (${status.elapsed_seconds}s)`;
+            btnCreate.disabled = true;
+          } else {
+            statusPill.className = "status-pill";
+            statusPill.querySelector(".dot").className = "dot";
+            statusText.innerText = status.error ? "Có lỗi xảy ra" : "Sẵn sàng";
+            btnCreate.disabled = false;
+          }
+
+          stepMsg.innerText = status.step_message || "Chờ lệnh...";
+          stepPct.innerText = `${status.progress}%`;
+          pBar.style.width = `${status.progress}%`;
+          updateStepPills(status.current_step, status.progress);
+
+          // Append new logs
+          if (data.logs && data.logs.length > 0) {
+            data.logs.forEach(log => appendLog(log.time, log.level, log.message));
+          }
+
+          // If job finished, refresh video list automatically
+          if (status.current_step === "done" && !status.is_running && !window.hasRefreshedOnDone) {
+            window.hasRefreshedOnDone = true;
+            loadVideos();
+          } else if (status.is_running) {
+            window.hasRefreshedOnDone = false;
+          }
+        } catch (err) {
+          console.error("SSE parse error:", err);
+        }
+      };
+
+      eventSource.onerror = function() {
+        setTimeout(initSSE, 3000);
+      };
+    }
+
+    async function triggerGenerate() {
+      const topic = document.getElementById("topicInput").value.trim();
+      const btn = document.getElementById("btnCreate");
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topic: topic || null })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          alert(err.detail || "Không thể khởi động tác vụ.");
+        }
+      } catch (err) {
+        alert("Lỗi kết nối tới máy chủ.");
+      }
+    }
+
+    async function loadVideos() {
+      try {
+        const res = await fetch("/api/videos");
+        const videos = await res.json();
+        document.getElementById("videoCount").innerText = videos.length;
+        const grid = document.getElementById("videoGrid");
+        grid.innerHTML = "";
+
+        if (videos.length === 0) {
+          grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #64748b; padding: 40px;">Chưa có video nào. Hãy bấm "Tạo Video Ngay" ở trên!</div>`;
+          return;
+        }
+
+        videos.forEach(v => {
+          const card = document.createElement("div");
+          card.className = "video-card";
+          card.onclick = () => openModal(v);
+
+          const thumb = v.thumb_url || "/static/placeholder.jpg";
+          const statusTag = v.passed 
+            ? `<span class="status-tag ok">✓ Đạt</span>` 
+            : `<span class="status-tag warn">! Xem lại</span>`;
+
+          card.innerHTML = `
+            <div class="thumb-wrapper">
+              <img src="${thumb}" alt="thumbnail" loading="lazy">
+              ${statusTag}
+              <span class="duration-badge">${v.duration || 60}s</span>
+              <div class="play-overlay">
+                <div class="play-btn">▶</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="video-card-title">${escapeHtml(v.title)}</div>
+              <div class="video-meta">
+                <span>📅 ${v.created_at}</span>
+                <span>💾 ${v.file_size_mb} MB</span>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Không tải được danh sách video:", err);
+      }
+    }
+
+    function openModal(video) {
+      currentVideoData = video;
+      document.getElementById("modalTitle").innerText = video.title;
+      document.getElementById("modalVideo").src = video.video_url;
+      document.getElementById("btnDownload").href = video.video_url;
+      document.getElementById("btnDownload").setAttribute("download", `${video.folder_name}.mp4`);
+
+      document.getElementById("tabDesc").innerText = video.description || "(Không có mô tả)";
+      document.getElementById("tabScript").innerText = video.script || "(Không có kịch bản)";
+      document.getElementById("tabReview").innerText = video.review || JSON.stringify(video.report, null, 2);
+
+      switchTab("tabDesc");
+      document.getElementById("videoModal").classList.add("active");
+    }
+
+    function closeModal() {
+      const v = document.getElementById("modalVideo");
+      v.pause();
+      v.src = "";
+      document.getElementById("videoModal").classList.remove("active");
+    }
+
+    function closeModalOnBackdrop(e) {
+      if (e.target.id === "videoModal") closeModal();
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      event.target.classList.add("active");
+    }
+
+    function copyDescription() {
+      if (!currentVideoData) return;
+      navigator.clipboard.writeText(currentVideoData.description);
+      alert("Đã sao chép tiêu đề và mô tả vào Clipboard!");
+    }
+
+    async function openOnComputer() {
+      if (!currentVideoData) return;
+      await fetch("/api/open-folder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folder: currentVideoData.folder_path })
+      });
+    }
+
+    // Startup
+    window.addEventListener("DOMContentLoaded", () => {
+      initSSE();
+      loadVideos();
+    });
+  </script>
+</body>
+</html>
+

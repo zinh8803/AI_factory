@@ -1,0 +1,18 @@
+{
+    "products": [
+        {
+            "name": "AI Tool A",
+            "category": "AI",
+            "affiliate_url": "YOUR_AFFILIATE_LINK",
+            "commission": "Kiểm tra theo chương trình",
+            "active": true
+        },
+        {
+            "name": "Hosting B",
+            "category": "Hosting",
+            "affiliate_url": "YOUR_AFFILIATE_LINK",
+            "commission": "Kiểm tra theo chương trình",
+            "active": true
+        }
+    ]
+}
