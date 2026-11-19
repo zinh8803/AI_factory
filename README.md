@@ -11,7 +11,8 @@ Hệ thống tích hợp AI từ nghiên cứu xu hướng, biên kịch, thu â
 - **🔍 Tự động nghiên cứu xu hướng:** Quét RSS Google Trends Việt Nam hàng ngày để chọn chủ đề thực chiến phù hợp nhất (tránh trùng lặp trong 60 ngày).
 - **🧠 Biên kịch kịch bản AI:** Sử dụng LLM chạy offline qua Ollama (`qwen2.5:3b`) chia kịch bản thành các phân cảnh ngắn 60–75s với hook lôi cuốn, CTA, mô tả và hashtag.
 - **🎙️ Giọng đọc tiếng Việt (KorvaTTS):** Chuyển văn bản thành giọng nói tiếng Việt tự nhiên hoàn toàn miễn phí, chạy offline trên CPU.
-- **🎨 Ảnh nền nghệ thuật AI (Pollinations):** Tự động tạo ảnh minh họa bối cảnh sắc nét cho từng phân cảnh qua Pollinations.ai.
+- **🎥 Video nhân vật chuyển động thật (Footage Engine):** Tích hợp tự động tải video chuyển động Full HD từ Mixkit (người gõ máy tính, làm việc văn phòng, robot cử động, công nghệ tương lai) **100% miễn phí, KHÔNG CẦN API KEY**, tự động crop dọc chuẩn 9:16. Hỗ trợ mở rộng thêm kho video Pixabay.
+- **🎨 Ảnh nền nghệ thuật AI (Pollinations):** Tự động tạo ảnh minh họa bối cảnh sắc nét cho từng phân cảnh qua Pollinations.ai kèm hiệu ứng camera 3D Ken Burns.
 - **🎞️ Dựng video chuyển động (FFmpeg):** Hiệu ứng camera Ken Burns đa dạng (zoom-in, zoom-out, pan ngang, lia dọc), lớp chữ tiêu đề trượt mượt mà.
 - **💬 Phụ đề kiểu Capsule hiện đại:** Cắt câu ngắn 4–6 từ/cụm, bo góc ôm sát chữ tương phản cao, phong cách TikTok/Reels thịnh hành.
 - **🖥️ Web Studio Dashboard:** Giao diện điều khiển 1-click, thanh tiến trình loading trực quan, console terminal xem log thời gian thực và kho video tích hợp trình phát.

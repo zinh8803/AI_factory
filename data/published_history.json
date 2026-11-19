@@ -34,5 +34,29 @@
     "affiliate_clicks": null,
     "signups": null,
     "commission": null
+  },
+  {
+    "date": "2026-11-11T10:30:43",
+    "title": "AI tạo video goku vs ronaldo",
+    "folder": "C:\\vinhnq\\AI-Video-Factory\\output\\pending\\2026-11-11_ai-tao-video-goku-vs-ronaldo",
+    "duration": 33.0,
+    "passed": false,
+    "affiliate": "",
+    "views": null,
+    "affiliate_clicks": null,
+    "signups": null,
+    "commission": null
+  },
+  {
+    "date": "2026-11-11T10:39:06",
+    "title": "Tận dụng AI cho công việc học tập và làm việc hiệu quả",
+    "folder": "C:\\vinhnq\\AI-Video-Factory\\output\\pending\\2026-11-11_tan-dung-ai-cho-cong-viec-hoc-tap-va-lam-viec-hieu",
+    "duration": 60.99,
+    "passed": true,
+    "affiliate": "",
+    "views": null,
+    "affiliate_clicks": null,
+    "signups": null,
+    "commission": null
   }
 ]

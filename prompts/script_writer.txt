@@ -13,7 +13,7 @@ YÊU CẦU KỊCH BẢN:
 {
   "title": "tiêu đề video, dưới 70 ký tự",
   "scenes": [
-    {"type": "hook|intro|step|result|cta", "narration": "lời đọc", "on_screen": "chữ hiển thị ngắn gọn, tối đa 8 từ", "icon": "một từ khóa minh họa", "image_prompt": "ENGLISH description of a vivid illustration for this scene, 15-30 words, concrete subjects and setting, no text"}
+    {"type": "hook|intro|step|result|cta", "narration": "lời đọc", "on_screen": "chữ hiển thị ngắn gọn, tối đa 8 từ", "icon": "một từ khóa minh họa", "video_keywords": "2-4 English search keywords for stock footage, e.g. 'man typing laptop'", "image_prompt": "ENGLISH description of a vivid illustration for this scene, 15-30 words, concrete subjects and setting, no text"}
   ],
   "description": "mô tả 2–4 câu cho video",
   "hashtags": ["#AI", "..."],

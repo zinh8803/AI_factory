@@ -7,6 +7,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from image_generator import generate_scene_images
+from video_provider import fetch_scene_videos
 from utils import ASSETS_DIR, OUTPUT_DIR, load_settings, log, media_duration, run_cmd
 
 FONT_CANDIDATES = [
@@ -261,34 +262,57 @@ def render_scene_clip(scene: dict, bg_png: Path, fg_png: Path, work: Path) -> Pa
     def still(p):
         return ["-loop", "1", "-framerate", str(fps), "-t", f"{dur:.3f}", "-i", str(p)]
 
-    inputs = still(bg_png) + still(fg_png)
-    for png, _, _ in timings:
-        inputs += still(png)
-    inputs += ["-i", scene["audio"]]
+    has_video = bool(scene.get("video_clip")) and Path(scene["video_clip"]).exists()
 
-    # Chuyển động camera cho nền: luân phiên zoom vào / zoom ra / lia ngang / lia dọc
-    z_in, z_out = f"1+0.15*on/{frames}", f"1.15-0.15*on/{frames}"
-    cx, cy = "iw/2-(iw/zoom/2)", "ih/2-(ih/zoom/2)"
-    moves = [
-        (z_in, cx, cy),
-        (z_out, cx, cy),
-        ("1.15", f"(iw-iw/zoom)*on/{frames}", cy),        # lia trái → phải
-        ("1.15", f"(iw-iw/zoom)*(1-on/{frames})", cy),    # lia phải → trái
-        ("1.12", cx, f"(ih-ih/zoom)*(1-on/{frames})"),    # lia dưới → trên
-    ]
-    z, x, y = moves[scene["index"] % len(moves)]
-    fc = [f"[0:v]scale={W * 2}:{H * 2},zoompan=z='{z}':x='{x}':y='{y}'"
-          f":d={frames}:s={W}x{H}:fps={fps},setsar=1[bg0]",
-          # Lớp chữ trượt từ dưới lên + hiện dần
-          f"[1:v]format=rgba,fade=t=in:st=0.1:d=0.45:alpha=1[fg]",
-          f"[bg0][fg]overlay=x=0:y='max(0,60-(t-0.1)*140)'[bg1]"]
-    last = "bg1"
-    for i, (_, a, b) in enumerate(timings, start=2):
-        fc.append(f"[{last}][{i}:v]overlay=0:0:enable='between(t,{a:.3f},{b:.3f})'[s{i}]")
-        last = f"s{i}"
-    fade_out = max(dur - 0.25, 0)
-    fc.append(f"[{last}]fade=t=in:st=0:d=0.25,fade=t=out:st={fade_out:.3f}:d=0.25,format=yuv420p[v]")
-    audio_idx = len(timings) + 2
+    if has_video:
+        inputs = ["-i", scene["video_clip"], *still(fg_png)]
+        for png, _, _ in timings:
+            inputs += still(png)
+        inputs += ["-i", scene["audio"]]
+
+        fc = [
+            f"[0:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},setsar=1,"
+            f"drawbox=y=0:h=900:color=black@0.45:t=fill,"
+            f"drawbox=y=1200:h=720:color=black@0.5:t=fill[bg0]",
+            f"[1:v]format=rgba,fade=t=in:st=0.1:d=0.4:alpha=1[fg]",
+            f"[bg0][fg]overlay=x=0:y='max(0,50-(t-0.1)*120)'[bg1]"
+        ]
+        last = "bg1"
+        for i, (_, a, b) in enumerate(timings, start=2):
+            fc.append(f"[{last}][{i}:v]overlay=0:0:enable='between(t,{a:.3f},{b:.3f})'[s{i}]")
+            last = f"s{i}"
+        fade_out = max(dur - 0.25, 0)
+        fc.append(f"[{last}]fade=t=in:st=0:d=0.25,fade=t=out:st={fade_out:.3f}:d=0.25,format=yuv420p[v]")
+        audio_idx = len(timings) + 2
+    else:
+        inputs = still(bg_png) + still(fg_png)
+        for png, _, _ in timings:
+            inputs += still(png)
+        inputs += ["-i", scene["audio"]]
+
+        # Chuyển động camera cho nền: luân phiên zoom vào / zoom ra / lia ngang / lia dọc
+        z_in, z_out = f"1+0.15*on/{frames}", f"1.15-0.15*on/{frames}"
+        cx, cy = "iw/2-(iw/zoom/2)", "ih/2-(ih/zoom/2)"
+        moves = [
+            (z_in, cx, cy),
+            (z_out, cx, cy),
+            ("1.15", f"(iw-iw/zoom)*on/{frames}", cy),        # lia trái → phải
+            ("1.15", f"(iw-iw/zoom)*(1-on/{frames})", cy),    # lia phải → trái
+            ("1.12", cx, f"(ih-ih/zoom)*(1-on/{frames})"),    # lia dưới → trên
+        ]
+        z, x, y = moves[scene["index"] % len(moves)]
+        fc = [f"[0:v]scale={W * 2}:{H * 2},zoompan=z='{z}':x='{x}':y='{y}'"
+              f":d={frames}:s={W}x{H}:fps={fps},setsar=1[bg0]",
+              # Lớp chữ trượt từ dưới lên + hiện dần
+              f"[1:v]format=rgba,fade=t=in:st=0.1:d=0.45:alpha=1[fg]",
+              f"[bg0][fg]overlay=x=0:y='max(0,60-(t-0.1)*140)'[bg1]"]
+        last = "bg1"
+        for i, (_, a, b) in enumerate(timings, start=2):
+            fc.append(f"[{last}][{i}:v]overlay=0:0:enable='between(t,{a:.3f},{b:.3f})'[s{i}]")
+            last = f"s{i}"
+        fade_out = max(dur - 0.25, 0)
+        fc.append(f"[{last}]fade=t=in:st=0:d=0.25,fade=t=out:st={fade_out:.3f}:d=0.25,format=yuv420p[v]")
+        audio_idx = len(timings) + 2
 
     out = work / f"clip_{scene['index']:02d}.mp4"
     run_cmd(["ffmpeg", "-y", "-loglevel", "error", *inputs,
@@ -327,7 +351,13 @@ def render_video(script: dict) -> dict:
             step_no += 1
             s["step_no"] = step_no
 
-    generate_scene_images(script, work)
+    mode = load_settings().get("video_source", {}).get("mode", "stock_video")
+    if mode in ("stock_video", "pexels_video"):
+        fetch_scene_videos(script, work)
+
+    missing = [s for s in script["scenes"] if not s.get("video_clip")]
+    if missing:
+        generate_scene_images(script, work)
 
     clips = []
     total = len(script["scenes"])

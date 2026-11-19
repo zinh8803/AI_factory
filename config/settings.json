@@ -35,6 +35,10 @@
         ],
         "accent_color": "#ffd166"
     },
+    "video_source": {
+        "mode": "stock_video",
+        "pixabay_api_key": ""
+    },
     "images": {
         "enabled": true,
         "api_key": "",

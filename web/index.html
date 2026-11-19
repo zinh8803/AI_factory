@@ -627,6 +627,34 @@
           <span>⚡</span> Bảng Điều Khiển Tạo Video
         </div>
 
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 13px; font-weight: 600; color: #94a3b8;">🎬 Bối cảnh chuyển động:</label>
+            <select id="videoModeSelect" onchange="changeVideoMode()" style="background: rgba(0,0,0,0.5); border: 1px solid var(--card-border); color: #fff; padding: 7px 12px; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; cursor: pointer;">
+              <option value="stock_video">🎬 Video người & công nghệ chuyển động Full HD (Miễn phí 100% - Không cần Key)</option>
+              <option value="ai_image">🎨 Ảnh AI nghệ thuật (Pollinations)</option>
+            </select>
+          </div>
+          <button onclick="toggleApiKeyBox()" style="background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: #cbd5e1; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <span>🔑</span> Thêm Pixabay Key (Tùy chọn)
+          </button>
+        </div>
+
+        <!-- Box nhập API Key (ẩn/hiện) -->
+        <div id="apiKeyBox" style="display: none; background: rgba(0,0,0,0.4); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+          <div style="font-size: 13px; margin-bottom: 6px; color: #f59e0b; font-weight: 600;">
+            ⚡ Mặc định hệ thống đã tự động tải video Full HD từ Mixkit mà KHÔNG CẦN BẤT KỲ KEY NÀO!
+          </div>
+          <div style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">
+            Nếu bạn muốn mở rộng thêm kho video Pixabay, có thể lấy API key miễn phí tại: 
+            <a href="https://pixabay.com/api/docs/" target="_blank" style="color: #38bdf8; text-decoration: underline;">https://pixabay.com/api/docs/</a>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="pixabayKeyInput" placeholder="Dán Pixabay API Key (nếu có)..." style="flex: 1; background: rgba(0,0,0,0.6); border: 1px solid var(--card-border); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-family: monospace;">
+            <button onclick="savePixabayKey()" class="btn-action primary" style="padding: 8px 18px; font-size: 13px; max-width: 120px;">Lưu Key</button>
+          </div>
+        </div>
+
         <div class="gen-box">
           <input type="text" id="topicInput" class="topic-input" 
                  placeholder="Nhập chủ đề video (hoặc để trống để AI tự quét Google Trends hôm nay)...">
@@ -943,9 +971,60 @@
       });
     }
 
+    // Settings management
+    function toggleApiKeyBox() {
+      const box = document.getElementById("apiKeyBox");
+      box.style.display = box.style.display === "none" ? "block" : "none";
+    }
+
+    async function loadSettings() {
+      try {
+        const res = await fetch("/api/settings");
+        const data = await res.json();
+        const vsrc = data.video_source || {};
+        if (vsrc.mode) {
+          document.getElementById("videoModeSelect").value = vsrc.mode;
+        }
+        if (vsrc.pixabay_api_key) {
+          document.getElementById("pixabayKeyInput").value = vsrc.pixabay_api_key;
+        }
+      } catch (err) {
+        console.error("Lỗi tải cấu hình:", err);
+      }
+    }
+
+    async function changeVideoMode() {
+      const mode = document.getElementById("videoModeSelect").value;
+      try {
+        await fetch("/api/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ video_source: { mode: mode } })
+        });
+      } catch (err) {
+        console.error("Lỗi đổi chế độ:", err);
+      }
+    }
+
+    async function savePixabayKey() {
+      const key = document.getElementById("pixabayKeyInput").value.trim();
+      try {
+        await fetch("/api/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ video_source: { pixabay_api_key: key } })
+        });
+        alert("Đã lưu Pixabay API Key thành công!");
+        document.getElementById("apiKeyBox").style.display = "none";
+      } catch (err) {
+        alert("Lỗi khi lưu key.");
+      }
+    }
+
     // Startup
     window.addEventListener("DOMContentLoaded", () => {
       initSSE();
+      loadSettings();
       loadVideos();
     });
   </script>

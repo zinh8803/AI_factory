@@ -209,6 +209,24 @@ async def api_logs_stream():
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
+@app.get("/api/settings")
+def api_get_settings():
+    return load_settings()
+
+
+@app.post("/api/settings")
+def api_update_settings(data: dict):
+    from utils import CONFIG_DIR
+    current = load_settings()
+    for k, v in data.items():
+        if isinstance(v, dict) and k in current and isinstance(current[k], dict):
+            current[k].update(v)
+        else:
+            current[k] = v
+    save_json(CONFIG_DIR / "settings.json", current)
+    return {"status": "saved", "settings": current}
+
+
 @app.get("/api/videos")
 def api_list_videos():
     """Quét toàn bộ video có trong output/pending."""
